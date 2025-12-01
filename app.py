@@ -10,11 +10,26 @@ MODEL_URL = "https://drive.google.com/uc?export=download&id=1aFo_wiE5fSKnb0Ny8dX
 MODEL_PATH = "model.pth"
 
 # Download model if not already downloaded
+def download_large_file_from_google_drive(url, destination):
+    session = requests.Session()
+    response = session.get(url, stream=True)
+    
+    # Check if Google Drive sent a confirmation token
+    if "download_warning" in response.cookies:
+        token = response.cookies["download_warning"]
+        url = url + "&confirm=" + token
+        response = session.get(url, stream=True)
+    
+    # Download in chunks
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(32768):
+            if chunk:
+                f.write(chunk)
+
+# Download model if needed
 if not os.path.exists(MODEL_PATH):
-    with st.spinner("Downloading model (92MB)... please wait. This happens only once."):
-        response = requests.get(MODEL_URL)
-        with open(MODEL_PATH, "wb") as f:
-            f.write(response.content)
+    with st.spinner("Downloading model (92MB)... please wait."):
+        download_large_file_from_google_drive(MODEL_URL, MODEL_PATH)
 
 
 # ============================================================
