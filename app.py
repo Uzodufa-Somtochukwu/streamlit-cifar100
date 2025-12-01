@@ -181,7 +181,7 @@ if uploaded_file:
         st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
 
     with col2:
-        st.markdown('<p style="font-size:24px;font-weight:700;color:#2563EB;margin-bottom:15px;">🔄 Processing Image...</p>', unsafe_allow_html=True)
+        st.markdown('<p style="color:#2563EB;font-size:18px;font-weight:600;">🔍 Analyzing your image...</p>', unsafe_allow_html=True)
 
         img = Image.open(uploaded_file).convert("RGB")
 
