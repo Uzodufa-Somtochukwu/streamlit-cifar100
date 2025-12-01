@@ -107,7 +107,7 @@ def load_model():
     model = models.resnet50(weights=None)
     model.fc = nn.Linear(model.fc.in_features, 100)
 
-    checkpoint = torch.load("resnet50_cifar100.pth", map_location=DEVICE)
+    checkpoint = torch.load("model.pth", map_location=DEVICE)
     
 
     model.load_state_dict(checkpoint)
