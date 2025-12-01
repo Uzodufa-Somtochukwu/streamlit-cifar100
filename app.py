@@ -6,31 +6,18 @@ from PIL import Image
 import requests
 import os
 
-MODEL_URL = "https://drive.google.com/uc?export=download&id=1aFo_wiE5fSKnb0Ny8dXULOi5kTI0MDdu"
-MODEL_PATH = "model.pth"
-
-# Download model if not already downloaded
-def download_large_file_from_google_drive(url, destination):
-    session = requests.Session()
-    response = session.get(url, stream=True)
-    
-    # Check if Google Drive sent a confirmation token
-    if "download_warning" in response.cookies:
-        token = response.cookies["download_warning"]
-        url = url + "&confirm=" + token
-        response = session.get(url, stream=True)
-    
-    # Download in chunks
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(32768):
-            if chunk:
-                f.write(chunk)
+# ============================================================
+# MODEL DOWNLOAD CONFIG (HUGGINGFACE)
+# ============================================================
+MODEL_URL = "https://huggingface.co/Mhizdufa/resnet50-cifar100-somto/resolve/main/resnet50_cifar100.pth"
+MODEL_PATH = "resnet50_cifar100.pth"
 
 # Download model if needed
 if not os.path.exists(MODEL_PATH):
-    with st.spinner("Downloading model (92MB)... please wait."):
-        download_large_file_from_google_drive(MODEL_URL, MODEL_PATH)
-
+    with st.spinner("Downloading model (95MB)... please wait."):
+        response = requests.get(MODEL_URL)
+        with open(MODEL_PATH, "wb") as f:
+            f.write(response.content)
 
 # ============================================================
 # DEVICE
@@ -47,7 +34,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# CUSTOM CSS FOR BEAUTIFUL UI
+# CUSTOM CSS (BEAUTIFUL UI)
 # ============================================================
 st.markdown("""
     <style>
@@ -70,10 +57,6 @@ st.markdown("""
         background-color: #f5f7fa;
         border: 1px solid #e6e9ef;
         margin-top: 20px;
-    }
-    .centered {
-        display: flex;
-        justify-content: center;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -115,16 +98,14 @@ classes = [
 ]
 
 # ============================================================
-# LOAD MODEL
+# LOAD MODEL (CACHED)
 # ============================================================
 @st.cache_resource
 def load_model():
     model = models.resnet50(weights=None)
     model.fc = nn.Linear(model.fc.in_features, 100)
 
-    checkpoint = torch.load("model.pth", map_location=DEVICE)
-    
-
+    checkpoint = torch.load(MODEL_PATH, map_location=DEVICE)
     model.load_state_dict(checkpoint)
 
     model.to(DEVICE)
@@ -134,7 +115,7 @@ def load_model():
 model = load_model()
 
 # ============================================================
-# IMAGE TRANSFORM
+# IMAGE TRANSFORMATIONS
 # ============================================================
 preprocess = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -148,7 +129,6 @@ preprocess = transforms.Compose([
 # ============================================================
 # MAIN UPLOAD SECTION
 # ============================================================
-
 uploaded_file = st.file_uploader("📤 Upload an image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
@@ -170,7 +150,6 @@ if uploaded_file:
             pred_class = classes[top5_idx[0].item()]
             pred_conf = top5_prob[0].item() * 100
 
-        # PREDICTION CARD
         st.markdown('<div class="prediction-card">', unsafe_allow_html=True)
         st.markdown(f"## 🎯 Prediction: **{pred_class}**")
         st.markdown(f"### Confidence: **{pred_conf:.2f}%**")
