@@ -7,7 +7,7 @@ import requests
 import os
 
 MODEL_URL = "https://drive.google.com/uc?export=download&id=1aFo_wiE5fSKnb0Ny8dXULOi5kTI0MDdu"
-MODEL_PATH = "resnet50_cifar100.pth"
+MODEL_PATH = "model.pth"
 
 # Download model if not already downloaded
 if not os.path.exists(MODEL_PATH):
