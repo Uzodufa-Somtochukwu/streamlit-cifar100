@@ -181,7 +181,8 @@ if uploaded_file:
         st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
 
     with col2:
-        st.markdown("### 🔄 Processing Image...")
+        st.markdown('<p style="font-size:24px;font-weight:700;color:#2563EB;margin-bottom:15px;">🔄 Processing Image...</p>', unsafe_allow_html=True)
+
         img = Image.open(uploaded_file).convert("RGB")
 
         img_tensor = preprocess(img).unsqueeze(0).to(DEVICE)
