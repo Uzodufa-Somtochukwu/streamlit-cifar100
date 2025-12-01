@@ -34,38 +34,83 @@ st.set_page_config(
 )
 
 # ============================================================
-# CUSTOM CSS (BEAUTIFUL UI)
+# DARK MODE TOGGLE
 # ============================================================
-st.markdown("""
+mode = st.sidebar.toggle("🌙 Dark Mode", value=False)
+
+background_color = "#ffffff" if not mode else "#0d1117"
+text_color = "#000000" if not mode else "#f0f6fc"
+subtitle_color = "#444444" if not mode else "#c9d1d9"
+card_bg = "rgba(255,255,255,0.25)" if not mode else "rgba(13,17,23,0.45)"
+card_border = "rgba(255,255,255,0.4)" if not mode else "rgba(240,246,252,0.2)"
+
+# ============================================================
+# GLASSMORPHIC UI
+# ============================================================
+st.markdown(f"""
     <style>
-    .title-text {
-        font-size: 38px;
+    body, .main {{
+        background-color: {background_color} !important;
+        color: {text_color} !important;
+    }}
+
+    .title-text {{
+        font-size: 44px;
         font-weight: 900;
         text-align: center;
-        color: #4A90E2;
-        margin-bottom: 0px;
-    }
-    .subtitle-text {
-        font-size: 18px;
+        color: #2563EB;
+    }}
+
+    .subtitle-text {{
+        font-size: 20px;
         text-align: center;
-        color: #666;
-        margin-top: -10px;
-    }
-    .prediction-card {
-        padding: 20px;
-        border-radius: 12px;
-        background-color: #f5f7fa;
-        border: 1px solid #e6e9ef;
+        color: {subtitle_color};
+        margin-bottom: 25px;
+    }}
+
+    .glass-card {{
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        background: {card_bg};
+        border: 2px solid {card_border};
+        padding: 28px;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
         margin-top: 20px;
-    }
+    }}
+
+    .pred-label {{
+        font-size: 32px;
+        font-weight: 800;
+        color: #DC2626;
+    }}
+
+    .confidence {{
+        font-size: 23px;
+        font-weight: 700;
+        color: #2563EB;
+    }}
+
+    .top5-title {{
+        font-size: 19px;
+        font-weight: 700;
+        color: #2563EB;
+        margin-top: 15px;
+    }}
+
+    .top5-item {{
+        font-size: 17px;
+        padding: 3px 0;
+        color: {text_color};
+    }}
     </style>
 """, unsafe_allow_html=True)
 
 # ============================================================
 # PAGE HEADER
 # ============================================================
-st.markdown('<p class="title-text">🖼 CIFAR-100 Image Classifier</p>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle-text">Upload an image and watch the ResNet-50 model predict its class.</p>', unsafe_allow_html=True)
+st.markdown('<p class="title-text">CIFAR-100 Image Classifier</p>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle-text">Upload an image and let the ResNet-50 model predict its class.</p>', unsafe_allow_html=True)
 st.write("")
 
 # ============================================================
@@ -73,13 +118,11 @@ st.write("")
 # ============================================================
 st.sidebar.title("📌 Instructions")
 st.sidebar.write("""
-1. Upload any clear image (.jpg, .jpeg, .png).  
-2. The model will preprocess it automatically.  
-3. Get the predicted CIFAR-100 class + top-5 probabilities.  
+1. Upload any image (.jpg, .jpeg, .png).  
+2. The model will preprocess it.  
+3. View the class prediction + top-5 probabilities.  
 """)
-
-st.sidebar.write("👉 *Model: Custom ResNet-50 trained on CIFAR-100*")
-st.sidebar.info("Made by Somto — for ML Deployment Assignment")
+st.sidebar.info("⚙ Model: Custom ResNet-50 trained on CIFAR-100\nMade by Somto ✨")
 
 # ============================================================
 # CIFAR-100 CLASS LIST
@@ -150,16 +193,25 @@ if uploaded_file:
             pred_class = classes[top5_idx[0].item()]
             pred_conf = top5_prob[0].item() * 100
 
-        st.markdown('<div class="prediction-card">', unsafe_allow_html=True)
-        st.markdown(f"## 🎯 Prediction: **{pred_class}**")
-        st.markdown(f"### Confidence: **{pred_conf:.2f}%**")
+        # ============================================================
+        # GLASS CARD OUTPUT
+        # ============================================================
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
 
-        st.markdown("#### 🔝 Top 5 Predictions:")
+        st.markdown(f'<p class="pred-label">🔮 Prediction: {pred_class}</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="confidence">Confidence: {pred_conf:.2f}%</p>', unsafe_allow_html=True)
+
+        st.markdown('<p class="top5-title">Top 5 Predictions:</p>', unsafe_allow_html=True)
         for i in range(5):
-            st.write(f"**{classes[top5_idx[i]]}** — {top5_prob[i].item() * 100:.2f}%")
+            st.markdown(
+                f'<p class="top5-item">• {classes[top5_idx[i]]}: {top5_prob[i].item() * 100:.2f}%</p>',
+                unsafe_allow_html=True
+            )
 
         st.markdown('</div>', unsafe_allow_html=True)
 
+# ============================================================
 # FOOTER
+# ============================================================
 st.write("---")
-st.caption("🚀 Built with Streamlit | ResNet-50 | CIFAR-100 — by Somto")
+st.caption("✨ Built with Streamlit | ResNet-50 | CIFAR-100 — by Uzodufa Somto")
